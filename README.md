@@ -1,29 +1,23 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.0;
 
-contract ErrorControl {
-    function Require(uint userInput) public pure {
-        require(userInput > 10, "Input must be greater than 10");
+contract SisonCalorie {
+    uint256 public totalCalories;
+    uint256 constant CALORIES_PER_CUP = 140;
+    event CalorieLogged(address indexed user, uint256 cups, uint256 calories);
+
+    function logCalories(uint256 cups) public {
+        uint256 calories = cups * CALORIES_PER_CUP;
+        require(calories > 0 && calories <= 2000, "cups must be between 1 and 2000.");
+        totalCalories += calories;
+        emit CalorieLogged(msg.sender, cups, calories);
+        assert(totalCalories >= calories);
     }
-    
-    function Revert(uint userInput) public pure {
-        if (userInput <= 10) {
-            revert("Input must be greater than 10");
+    function ResetCalories() public {
+        if (totalCalories == 0) {
+            revert("Total calories are already zero. No need to reset.");
         }
-    }
-
-    uint public value;
-
-    function Assert() public view {
-        assert(value == 0);
-    }
-
-    error InsufficientFunds(uint currentBalance, uint requiredAmount);
-
-    function CustomizedError(uint amount) public view {
-        uint balance = address(this).balance;
-        if (balance < amount) {
-            revert InsufficientFunds({currentBalance: balance, requiredAmount: amount});
-        }
+        totalCalories = 0;
+        assert(totalCalories == 0);
     }
 }
